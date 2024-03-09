@@ -3,7 +3,11 @@
 転んでいる人もしくは顔が検出された場合その旨をGUIアプリケーションに部屋ごとに表示
 
 参考URL
+顔検出
 https://office54.net/python/opencv/movie-face-authentication
-https://engineer.nus21.com/python/face-detection-using-opencv-pc-camera-version/
+ドア検出
+https://github.com/topics/door-detection
 懸念点
 部屋の認識はどうするか
+・ドアノブを検出させ、プログラムがドアノブを発見したらそこを部屋とする
+・ドアノブ検出→顔検出→人がいる事確認→アプリケーションに反映
