@@ -2,5 +2,8 @@
 ノートPCのwebカメラで姿勢推定または顔検出をリアルタイムで行う
 転んでいる人もしくは顔が検出された場合その旨をGUIアプリケーションに部屋ごとに表示
 
+参考URL
+https://office54.net/python/opencv/movie-face-authentication
+https://engineer.nus21.com/python/face-detection-using-opencv-pc-camera-version/
 懸念点
 部屋の認識はどうするか
