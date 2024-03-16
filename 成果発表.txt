@@ -7,6 +7,8 @@
 https://office54.net/python/opencv/movie-face-authentication
 ドア検出
 https://github.com/topics/door-detection
+QRコード
+https://qiita.com/PoodleMaster/items/0afbce4be7e442e75be6
 懸念点
 部屋の認識はどうするか
 ・ドアノブを検出させ、プログラムがドアノブを発見したらそこを部屋とする
