@@ -11,7 +11,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 # 画像キャプチャ
 # -----------------------------------------------------------
 # VideoCaptureインスタンス生成
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # QRCodeDetectorインスタンス生成
 qrd = cv2.QRCodeDetector()
