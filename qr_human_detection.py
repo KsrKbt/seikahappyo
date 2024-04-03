@@ -10,6 +10,8 @@ import random
 
 room_name = ""
 dfResult = False
+# 顔検知回数
+count = 0
 # QRコード読み取り
 def read_qrcode(frame, qrd):
     # QRコードデコード
@@ -17,18 +19,17 @@ def read_qrcode(frame, qrd):
 
         if retval:
             points = points.astype(np.int32)
-
             for dec_inf, point in zip(decoded_info, points):
                 if dec_inf == '':
-                    continue
-
+                    return dec_inf
+                else:
+                    return dec_inf
                 # QRコード座標取得
                 # x = point[0][0]
                 # y = point[0][1]
 
                 # QRコードデータ
                 #print('dec:', dec_inf)
-                return dec_inf
                 # frame = cv2.putText(frame, dec_inf, (x, y - 6), font, .3, (0, 0, 255), 1, cv2.LINE_AA)
 
                 # バウンディングボックス
@@ -51,7 +52,7 @@ def detction_face(frame, cascade):
 
 # カメラ映像表示
 def cam_view():
-    global room_name, dfResult
+    global room_name, dfResult, count
     lock = Lock()
     # VideoCaptureインスタンス生成
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -64,13 +65,13 @@ def cam_view():
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
-            # 更新前の部屋名
-            prvQR = room_name
             with lock:
                 # QRコードが表す文字列
                 room_name = read_qrcode(frame, qrd)
                 # 顔が検出されたか否か
                 dfResult = detction_face(frame, cascade)
+                if dfResult:
+                    count = count + 1
 
             # OpenCVの画像をPIL形式に変換
             img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -91,35 +92,52 @@ def cam_view():
 def create_window():
     # グローバル変数のロック用
     lock = Lock()
-    # 一つ前にスキャンした部屋名
-    prevRoomName = ""
+    prevRoomName = ''
+    # 部屋の在室確認が取れたかどうか
+    flag = 0
     # 在室状況更新
-    def update_room():
-        global room_name, dfResult
-        if prevRoomName != room_name:
-           prevRoomName = room_name
-
-        # ランダムな色を生成
-        #color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
-        # 図形の色を変更
-        '''
-        if tmp == "room1":
-            if tmp2 == True:
-                canvas.itemconfig(circle, fill="green")
-            else:
-                canvas.itemconfig(circle, fill="red")
-        elif tmp == "room2":
-            if tmp2 == True:
-                canvas.itemconfig(circle2, fill="green")
-            else:
-                canvas.itemconfig(circle2, fill="red")
-        elif tmp == "room3":
-            if tmp2 == True:
-                canvas.itemconfig(circle3, fill="green")
-            else:
-                canvas.itemconfig(circle3, fill="red")
-        '''
-        root.after(1000, update_room)
+    def update_room(prevRoomName, flag):
+        global room_name, dfResult, count
+        # 在室確認する部屋が更新された場合
+        if room_name is not None:
+            prevRoomName = room_name
+            print(prevRoomName)
+            flag = 0
+        # 顔検知が誤ったものでないかの指標となる閾値
+        # 一秒間に何回顔検知されたか
+        threshold = 5
+        # countが閾値よりも大きい場合（誤検知ではなさそうな場合）
+        if threshold < count:
+            if prevRoomName == "room1":
+                if flag != 4:
+                    canvas.itemconfig(circle, fill="green")
+                    # 在室確認が取れた
+                    flag += 1
+            elif prevRoomName == "room2":
+                if flag != 4:
+                    canvas.itemconfig(circle2, fill="green")
+                    flag += 1
+            elif prevRoomName == "room3":
+                if flag != 4:
+                    canvas.itemconfig(circle3, fill="green")
+                    flag += 1
+        else:
+            if prevRoomName == "room1":
+                if flag != 4:
+                    canvas.itemconfig(circle, fill="red")
+                    flag += 1
+            elif prevRoomName == "room2":
+                if flag != 4:
+                    canvas.itemconfig(circle2, fill="red")
+                    flag += 1
+            elif prevRoomName == "room3":
+                if flag != 4:
+                    canvas.itemconfig(circle3, fill="red")
+                    flag += 1
+        with lock:
+            room_name = ""
+            count = 0
+        root.after(1000, lambda: update_room(prevRoomName, flag))
     # 画面作成
     root = tk.Tk()
     root.geometry("700x554")
@@ -149,7 +167,7 @@ def create_window():
     circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle2 = canvas.create_oval(360 - circle_radius, circle_y - circle_radius, 360 + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle3 = canvas.create_oval(560 - circle_radius, circle_y - circle_radius, 560 + circle_radius, circle_y + circle_radius, fill=circle_color)
-    update_room()
+    update_room(prevRoomName, flag)
     root.mainloop()
 
     
