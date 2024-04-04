@@ -93,51 +93,58 @@ def create_window():
     # グローバル変数のロック用
     lock = Lock()
     prevRoomName = ''
-    # 部屋の在室確認が取れたかどうか
+    # 部屋の在室確認を何回したか
     flag = 0
+    # 在室と判断したときに加算
+    flag2 = 0
+    # 不在と判断したときに加算
+    flag3 = 0
     # 在室状況更新
-    def update_room(prevRoomName, flag):
+    def update_room(prevRoomName, flag, flag2, flag3):
         global room_name, dfResult, count
         # 在室確認する部屋が更新された場合
         if room_name is not None:
             prevRoomName = room_name
             print(prevRoomName)
             flag = 0
+            flag2 = 0
+            flag3 = 0
         # 顔検知が誤ったものでないかの指標となる閾値
         # 一秒間に何回顔検知されたか
         threshold = 5
         # countが閾値よりも大きい場合（誤検知ではなさそうな場合）
         if threshold < count:
-            if prevRoomName == "room1":
-                if flag != 4:
-                    canvas.itemconfig(circle, fill="green")
-                    # 在室確認が取れた
-                    flag += 1
-            elif prevRoomName == "room2":
-                if flag != 4:
-                    canvas.itemconfig(circle2, fill="green")
-                    flag += 1
-            elif prevRoomName == "room3":
-                if flag != 4:
-                    canvas.itemconfig(circle3, fill="green")
-                    flag += 1
+            if flag != 8:
+                # 在室確認が取れた
+                flag2 += 1
+                flag += 1
+        # 誤検知、もしくは検知できなかった場合
         else:
-            if prevRoomName == "room1":
-                if flag != 4:
+            if flag != 8:
+                # 不在と判断した場合
+                flag3 += 1
+                flag += 1
+
+        if flag == 8:
+            if flag2 > flag3:
+                if prevRoomName == "room1":
+                    canvas.itemconfig(circle, fill="green")
+                elif prevRoomName == "room2":
+                    canvas.itemconfig(circle2, fill="green")
+                elif prevRoomName == "room3":
+                    canvas.itemconfig(circle3, fill="green")
+            else:
+                if prevRoomName == "room1":
                     canvas.itemconfig(circle, fill="red")
-                    flag += 1
-            elif prevRoomName == "room2":
-                if flag != 4:
+                elif prevRoomName == "room2":
                     canvas.itemconfig(circle2, fill="red")
-                    flag += 1
-            elif prevRoomName == "room3":
-                if flag != 4:
+                elif prevRoomName == "room3":
                     canvas.itemconfig(circle3, fill="red")
-                    flag += 1
+
         with lock:
             room_name = ""
             count = 0
-        root.after(1000, lambda: update_room(prevRoomName, flag))
+        root.after(1000, lambda: update_room(prevRoomName, flag, flag2, flag3))
     # 画面作成
     root = tk.Tk()
     root.geometry("700x554")
@@ -167,7 +174,7 @@ def create_window():
     circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle2 = canvas.create_oval(360 - circle_radius, circle_y - circle_radius, 360 + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle3 = canvas.create_oval(560 - circle_radius, circle_y - circle_radius, 560 + circle_radius, circle_y + circle_radius, fill=circle_color)
-    update_room(prevRoomName, flag)
+    update_room(prevRoomName, flag, flag2, flag3)
     root.mainloop()
 
     
