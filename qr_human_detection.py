@@ -24,16 +24,6 @@ def read_qrcode(frame, qrd):
                     return dec_inf
                 else:
                     return dec_inf
-                # QRコード座標取得
-                # x = point[0][0]
-                # y = point[0][1]
-
-                # QRコードデータ
-                #print('dec:', dec_inf)
-                # frame = cv2.putText(frame, dec_inf, (x, y - 6), font, .3, (0, 0, 255), 1, cv2.LINE_AA)
-
-                # バウンディングボックス
-                # frame = cv2.polylines(frame, [point], True, (0, 255, 0), 1, cv2.LINE_AA)
 
 # 顔検知
 def detction_face(frame, cascade):
@@ -105,7 +95,18 @@ def create_window():
         # 在室確認する部屋が更新された場合
         if room_name is not None:
             prevRoomName = room_name
-            print(prevRoomName)
+            if prevRoomName == "room1":
+                canvas.itemconfig(RN1, fill="black")
+                canvas.itemconfig(RN2, fill="gray")
+                canvas.itemconfig(RN3, fill="gray")
+            elif prevRoomName == "room2":
+                canvas.itemconfig(RN2, fill="black")
+                canvas.itemconfig(RN1, fill="gray")
+                canvas.itemconfig(RN3, fill="gray")
+            elif prevRoomName == "room3":
+                canvas.itemconfig(RN3, fill="black")
+                canvas.itemconfig(RN2, fill="gray")
+                canvas.itemconfig(RN1, fill="gray")
             flag = 0
             flag2 = 0
             flag3 = 0
@@ -174,6 +175,10 @@ def create_window():
     circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle2 = canvas.create_oval(360 - circle_radius, circle_y - circle_radius, 360 + circle_radius, circle_y + circle_radius, fill=circle_color)
     circle3 = canvas.create_oval(560 - circle_radius, circle_y - circle_radius, 560 + circle_radius, circle_y + circle_radius, fill=circle_color)
+    # 部屋名を表示
+    RN1 = canvas.create_text(155, 100, text="Room1", fill="gray", font=("Arial", 18))
+    RN2 = canvas.create_text(360, 100, text="Room2", fill="gray", font=("Arial", 18))
+    RN3 = canvas.create_text(560, 100, text="Room3", fill="gray", font=("Arial", 18))
     update_room(prevRoomName, flag, flag2, flag3)
     root.mainloop()
 
