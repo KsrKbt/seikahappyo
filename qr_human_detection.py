@@ -94,19 +94,19 @@ def create_window():
         global room_name, dfResult, count
         # 在室確認する部屋が更新された場合
         if room_name is not None:
-            prevRoomName = room_name
             if prevRoomName == "room1":
-                canvas.itemconfig(RN1, fill="black")
-                canvas.itemconfig(RN2, fill="gray")
-                canvas.itemconfig(RN3, fill="gray")
+                canvas.itemconfig(RN1, fill="gray")
             elif prevRoomName == "room2":
-                canvas.itemconfig(RN2, fill="black")
-                canvas.itemconfig(RN1, fill="gray")
-                canvas.itemconfig(RN3, fill="gray")
-            elif prevRoomName == "room3":
-                canvas.itemconfig(RN3, fill="black")
                 canvas.itemconfig(RN2, fill="gray")
-                canvas.itemconfig(RN1, fill="gray")
+            elif prevRoomName == "room3":
+                canvas.itemconfig(RN3, fill="gray")
+            if room_name == "room1":
+                canvas.itemconfig(RN1, fill="black")
+            elif room_name == "room2":
+                canvas.itemconfig(RN2, fill="black")
+            elif room_name == "room3":
+                canvas.itemconfig(RN3, fill="black")
+            prevRoomName = room_name
             flag = 0
             flag2 = 0
             flag3 = 0
@@ -169,16 +169,22 @@ def create_window():
     circle_x = 150
     circle_y = 140
     circle_radius = 20
-    circle_color = "red"
+    '''c_color = []
+
+    # 前回の在室状況の読み込み（データベースからの取得が理想）
+    with open("color.txt") as f:
+        for s_line in f:
+            c_color.append(s_line)'''
 
     # 初期の円を描画
-    circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=circle_color)
-    circle2 = canvas.create_oval(360 - circle_radius, circle_y - circle_radius, 360 + circle_radius, circle_y + circle_radius, fill=circle_color)
-    circle3 = canvas.create_oval(560 - circle_radius, circle_y - circle_radius, 560 + circle_radius, circle_y + circle_radius, fill=circle_color)
+    circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=c_color[0])
+    circle2 = canvas.create_oval(360 - circle_radius, circle_y - circle_radius, 360 + circle_radius, circle_y + circle_radius, fill=c_color[1])
+    circle3 = canvas.create_oval(560 - circle_radius, circle_y - circle_radius, 560 + circle_radius, circle_y + circle_radius, fill=c_color[2])
     # 部屋名を表示
     RN1 = canvas.create_text(155, 100, text="Room1", fill="gray", font=("Arial", 18))
     RN2 = canvas.create_text(360, 100, text="Room2", fill="gray", font=("Arial", 18))
     RN3 = canvas.create_text(560, 100, text="Room3", fill="gray", font=("Arial", 18))
+
     update_room(prevRoomName, flag, flag2, flag3)
     root.mainloop()
 
