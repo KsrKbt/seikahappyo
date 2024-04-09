@@ -2,11 +2,9 @@ import cv2
 import numpy as np
 import tkinter as tk
 from tkinter import font
-from PIL import Image, ImageTk
+from PIL import Image
 import threading
 from threading import Lock
-import queue
-import random
 
 room_name = ""
 dfResult = False
@@ -90,7 +88,7 @@ def create_window():
     # 不在と判断したときに加算
     flag3 = 0
     # 在室状況更新
-    def update_room(prevRoomName, flag, flag2, flag3):
+    def update_room(prevRoomName, flag, flag2, flag3, c_color):
         global room_name, dfResult, count
         # 在室確認する部屋が更新された場合
         if room_name is not None:
@@ -115,37 +113,46 @@ def create_window():
         threshold = 5
         # countが閾値よりも大きい場合（誤検知ではなさそうな場合）
         if threshold < count:
-            if flag != 8:
+            if flag != 5:
                 # 在室確認が取れた
                 flag2 += 1
                 flag += 1
         # 誤検知、もしくは検知できなかった場合
         else:
-            if flag != 8:
+            if flag != 5:
                 # 不在と判断した場合
                 flag3 += 1
                 flag += 1
 
-        if flag == 8:
+        if flag == 5:
             if flag2 > flag3:
                 if prevRoomName == "room1":
                     canvas.itemconfig(circle, fill="green")
+                    c_color[0] = "green"
                 elif prevRoomName == "room2":
                     canvas.itemconfig(circle2, fill="green")
+                    c_color[1] = "green"
                 elif prevRoomName == "room3":
                     canvas.itemconfig(circle3, fill="green")
+                    c_color[2] = "green"
             else:
                 if prevRoomName == "room1":
                     canvas.itemconfig(circle, fill="red")
+                    c_color[0] = "red"
                 elif prevRoomName == "room2":
                     canvas.itemconfig(circle2, fill="red")
+                    c_color[1] = "red"
                 elif prevRoomName == "room3":
                     canvas.itemconfig(circle3, fill="red")
+                    c_color[2] = "red"
 
         with lock:
             room_name = ""
             count = 0
-        root.after(1000, lambda: update_room(prevRoomName, flag, flag2, flag3))
+        with open("color.txt", mode="w") as f:
+            for line in c_color:
+                f.write(line + "\n")
+        root.after(1000, lambda: update_room(prevRoomName, flag, flag2, flag3, c_color))
     # 画面作成
     root = tk.Tk()
     root.geometry("700x554")
@@ -169,12 +176,12 @@ def create_window():
     circle_x = 150
     circle_y = 140
     circle_radius = 20
-    '''c_color = []
+    c_color = []
 
     # 前回の在室状況の読み込み（データベースからの取得が理想）
     with open("color.txt") as f:
         for s_line in f:
-            c_color.append(s_line)'''
+            c_color.append(s_line.rstrip())
 
     # 初期の円を描画
     circle = canvas.create_oval(circle_x - circle_radius, circle_y - circle_radius, circle_x + circle_radius, circle_y + circle_radius, fill=c_color[0])
@@ -185,13 +192,8 @@ def create_window():
     RN2 = canvas.create_text(360, 100, text="Room2", fill="gray", font=("Arial", 18))
     RN3 = canvas.create_text(560, 100, text="Room3", fill="gray", font=("Arial", 18))
 
-    update_room(prevRoomName, flag, flag2, flag3)
+    update_room(prevRoomName, flag, flag2, flag3, c_color)
     root.mainloop()
-
-    
-
-
-
 
 def main():
     cam_thread = threading.Thread(target=cam_view)
@@ -199,6 +201,5 @@ def main():
     cam_thread.start()
     room_thread.start()
     
-
 if __name__ == '__main__':
     main()
